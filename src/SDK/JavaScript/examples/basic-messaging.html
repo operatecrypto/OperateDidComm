@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DIDComm Basic Messaging Example</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { padding: 20px; }
+        .message-list { max-height: 400px; overflow-y: auto; }
+        .message-item { border-left: 3px solid #0d6efd; margin-bottom: 10px; }
+        .eth-address {
+            font-family: monospace;
+            font-size: 0.9em;
+            word-break: break-all;
+        }
+        .private-key {
+            font-family: monospace;
+            font-size: 0.85em;
+            word-break: break-all;
+            background: #f8f9fa;
+            padding: 8px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>DIDComm Basic Messaging</h1>
+        <p class="text-muted">OperateCrypto DIDComm JavaScript SDK Example</p>
+
+        <!-- Ethereum Wallet Panel -->
+        <div class="card mb-4 border-warning">
+            <div class="card-header bg-warning text-dark">
+                <strong>Test Ethereum Wallet</strong>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>Public Address</h6>
+                        <div class="eth-address text-primary" id="ethAddress">-</div>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Balance</h6>
+                        <div id="ethBalance">0.0 ETH</div>
+                    </div>
+                </div>
+                <div class="mt-3">
+                    <h6>Private Key <small class="text-danger">(Test Only - Never share!)</small></h6>
+                    <div class="private-key text-danger" id="ethPrivateKey">-</div>
+                </div>
+                <div class="mt-3">
+                    <button class="btn btn-sm btn-warning" onclick="generateWallet()">Generate New Wallet</button>
+                    <button class="btn btn-sm btn-secondary" onclick="clearWallet()">Clear Wallet</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Configuration -->
+        <div class="card mb-4">
+            <div class="card-header">Configuration</div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label class="form-label">Your DID</label>
+                    <input type="text" id="myDid" class="form-control" value="did:web:sunstream.operatedid.com">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Auth Token</label>
+                    <input type="text" id="authToken" class="form-control" value="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkaWQ6d2ViOnN1bnN0cmVhbS5vcGVyYXRlZGlkLmNvbSIsIm5hbWUiOiJTdW5zdHJlYW0iLCJpYXQiOjE3MDk4MTYwMDB9.sample-token-for-testing">
+                </div>
+                <button class="btn btn-primary" onclick="initializeClient()">Initialize Client</button>
+                <span id="clientStatus" class="ms-2"></span>
+            </div>
+        </div>
+
+        <!-- Send Message -->
+        <div class="card mb-4">
+            <div class="card-header">Send Message</div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label class="form-label">Recipient DID</label>
+                    <input type="text" id="recipientDid" class="form-control" value="did:web:alice.operatedid.com">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Message</label>
+                    <textarea id="messageContent" class="form-control" rows="3" placeholder="Hello from Sunstream!">Hello from Sunstream!</textarea>
+                </div>
+                <button class="btn btn-success" onclick="sendMessage()">Send Message</button>
+                <button class="btn btn-info ms-2" onclick="sendPing()">Send Ping</button>
+            </div>
+        </div>
+
+        <!-- Messages -->
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span>Messages</span>
+                <button class="btn btn-sm btn-primary" onclick="togglePolling()">
+                    <span id="pollingStatus">Start Polling</span>
+                </button>
+            </div>
+            <div class="card-body message-list" id="messageList">
+                <p class="text-muted">No messages yet</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="../didcomm-sdk.js"></script>
+    <script>
+        let client = null;
+        let isPolling = false;
+
+        // Ethereum Wallet Functions
+        function generateWallet() {
+            // Generate a simple test Ethereum wallet
+            const privateKey = '0x' + Array.from({length: 64}, () =>
+                Math.floor(Math.random() * 16).toString(16)).join('');
+
+            // Derive public address from private key (simplified for demo)
+            const addressBytes = privateKey.slice(26, 66); // Take last 40 chars
+            const publicAddress = '0x' + addressBytes;
+
+            // Store in localStorage
+            localStorage.setItem('eth_private_key', privateKey);
+            localStorage.setItem('eth_address', publicAddress);
+
+            // Display
+            displayWallet();
+
+            alert('Test wallet generated! This is for demonstration only.');
+        }
+
+        function displayWallet() {
+            const privateKey = localStorage.getItem('eth_private_key') || '-';
+            const address = localStorage.getItem('eth_address') || '-';
+
+            document.getElementById('ethPrivateKey').textContent = privateKey;
+            document.getElementById('ethAddress').textContent = address;
+        }
+
+        function clearWallet() {
+            if (confirm('Clear wallet from localStorage?')) {
+                localStorage.removeItem('eth_private_key');
+                localStorage.removeItem('eth_address');
+                document.getElementById('ethPrivateKey').textContent = '-';
+                document.getElementById('ethAddress').textContent = '-';
+                document.getElementById('ethBalance').textContent = '0.0 ETH';
+            }
+        }
+
+        // Initialize wallet display on page load
+        window.addEventListener('DOMContentLoaded', () => {
+            displayWallet();
+
+            // Auto-generate wallet if none exists
+            if (!localStorage.getItem('eth_address')) {
+                generateWallet();
+            }
+        });
+
+        function initializeClient() {
+            const myDid = document.getElementById('myDid').value;
+            const authToken = document.getElementById('authToken').value;
+
+            if (!myDid || !authToken) {
+                alert('Please enter both DID and auth token');
+                return;
+            }
+
+            client = new DIDCommClient({
+                apiEndpoint: 'http://localhost:5179', // API server URL
+                did: myDid,
+                token: authToken
+            });
+
+            document.getElementById('clientStatus').innerHTML = '<span class="badge bg-success">Connected</span>';
+            console.log('DIDComm client initialized');
+        }
+
+        async function sendMessage() {
+            if (!client) {
+                alert('Please initialize client first');
+                return;
+            }
+
+            const recipientDid = document.getElementById('recipientDid').value;
+            const content = document.getElementById('messageContent').value;
+
+            if (!recipientDid || !content) {
+                alert('Please enter recipient DID and message');
+                return;
+            }
+
+            try {
+                const result = await client.sendMessage(recipientDid, {
+                    content: content,
+                    timestamp: new Date().toISOString()
+                });
+
+                console.log('Message sent:', result);
+                alert(`Message sent successfully! ID: ${result.messageId}`);
+                document.getElementById('messageContent').value = '';
+            } catch (error) {
+                console.error('Error sending message:', error);
+                alert('Failed to send message: ' + error.message);
+            }
+        }
+
+        async function sendPing() {
+            if (!client) {
+                alert('Please initialize client first');
+                return;
+            }
+
+            const recipientDid = document.getElementById('recipientDid').value;
+            if (!recipientDid) {
+                alert('Please enter recipient DID');
+                return;
+            }
+
+            try {
+                const result = await client.sendPing(recipientDid);
+                console.log('Ping sent:', result);
+                alert('Ping sent successfully!');
+            } catch (error) {
+                console.error('Error sending ping:', error);
+                alert('Failed to send ping: ' + error.message);
+            }
+        }
+
+        function togglePolling() {
+            if (!client) {
+                alert('Please initialize client first');
+                return;
+            }
+
+            if (isPolling) {
+                client.stopPolling();
+                isPolling = false;
+                document.getElementById('pollingStatus').textContent = 'Start Polling';
+            } else {
+                client.startPolling((messages) => {
+                    displayMessages(messages);
+                    messages.forEach(async (msg) => {
+                        await client.markAsRead(msg.id);
+                    });
+                });
+                isPolling = true;
+                document.getElementById('pollingStatus').textContent = 'Stop Polling';
+            }
+        }
+
+        function displayMessages(messages) {
+            const messageList = document.getElementById('messageList');
+
+            if (messages.length === 0) {
+                messageList.innerHTML = '<p class="text-muted">No new messages</p>';
+                return;
+            }
+
+            messageList.innerHTML = '';
+            messages.forEach(msg => {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'card message-item p-3 mb-2';
+
+                const body = msg.body ? JSON.parse(msg.body) : {};
+
+                messageDiv.innerHTML = `
+                    <div class="d-flex justify-content-between">
+                        <strong>${msg.from}</strong>
+                        <small class="text-muted">${new Date(msg.receivedAt || msg.sentAt).toLocaleString()}</small>
+                    </div>
+                    <div class="mt-2">
+                        <strong>Type:</strong> ${msg.type}<br>
+                        <strong>Content:</strong> ${body.content || JSON.stringify(body)}
+                    </div>
+                    <div class="mt-2">
+                        <span class="badge bg-${msg.status === 'read' ? 'secondary' : 'primary'}">${msg.status}</span>
+                    </div>
+                `;
+
+                messageList.appendChild(messageDiv);
+            });
+        }
+    </script>
+</body>
+</html>

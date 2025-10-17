@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.11" />
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.18" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Core\OperateCrypto.DIDComm.Core\OperateCrypto.DIDComm.Core.csproj" />
+    <ProjectReference Include="..\..\Core\OperateCrypto.DIDComm.Resolver\OperateCrypto.DIDComm.Resolver.csproj" />
+    <ProjectReference Include="..\..\Core\OperateCrypto.DIDComm.Crypto\OperateCrypto.DIDComm.Crypto.csproj" />
+    <ProjectReference Include="..\..\Infrastructure\OperateCrypto.DIDComm.Data\OperateCrypto.DIDComm.Data.csproj" />
+    <ProjectReference Include="..\..\Infrastructure\OperateCrypto.DIDComm.Handlers\OperateCrypto.DIDComm.Handlers.csproj" />
+  </ItemGroup>
+
+</Project>

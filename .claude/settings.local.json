@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dir:*)",
+      "Bash(dotnet new:*)",
+      "Bash(mkdir:*)",
+      "Bash(dotnet sln:*)",
+      "Bash(del srcCoreOperateCrypto.DIDComm.CoreClass1.cs)",
+      "Bash(dotnet add:*)",
+      "Bash(dotnet build:*)",
+      "Bash(dotnet run)",
+      "Bash(taskkill:*)",
+      "Bash(dotnet run:*)",
+      "Bash(curl:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

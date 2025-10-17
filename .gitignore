@@ -1,0 +1,124 @@
+# Visual Studio / .NET
+## Build results
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+[Ww][Ii][Nn]32/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+bld/
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+
+## Visual Studio cache/options
+.vs/
+.vscode/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.userprefs
+
+## Rider
+.idea/
+*.sln.iml
+
+## Visual Studio profiler
+*.psess
+*.vsp
+*.vspx
+*.sap
+
+## ReSharper
+_ReSharper*/
+*.[Rr]e[Ss]harper
+*.DotSettings.user
+
+## NCrunch
+_NCrunch_*
+.*crunch*.local.xml
+nCrunchTemp_*
+
+## NuGet Packages
+*.nupkg
+*.snupkg
+**/packages/*
+!**/packages/build/
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+## NuGet Symbol Packages
+*.snupkg
+
+# Node / React / JavaScript
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.pnpm-debug.log*
+
+## Testing
+coverage/
+*.lcov
+.nyc_output
+
+## Production builds
+build/
+dist/
+out/
+
+## Misc
+.DS_Store
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+*.log
+
+## IDE
+.idea
+.vscode/
+*.swp
+*.swo
+*~
+
+## Optional npm cache
+.npm
+
+## Optional eslint cache
+.eslintcache
+
+## Optional REPL history
+.node_repl_history
+
+## Yarn
+.yarn/cache
+.yarn/unplugged
+.yarn/build-state.yml
+.yarn/install-state.gz
+.pnp.*
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+database/*.db
+database/*.sqlite
+
+# OS
+Thumbs.db
+Desktop.ini
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.cache
