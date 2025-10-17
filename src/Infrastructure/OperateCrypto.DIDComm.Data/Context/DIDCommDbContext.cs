@@ -25,7 +25,7 @@ public class DIDCommDbContext : DbContext
         // Configure MessageRecord entity
         modelBuilder.Entity<MessageRecord>(entity =>
         {
-            entity.ToTable("Messages", "dbo");
+            entity.ToTable("DIDComm_Messages", "dbo");
             entity.HasKey(e => e.Id);
 
             entity.Property(e => e.MessageId)
@@ -34,7 +34,7 @@ public class DIDCommDbContext : DbContext
 
             entity.HasIndex(e => e.MessageId)
                 .IsUnique()
-                .HasDatabaseName("IX_Messages_MessageId");
+                .HasDatabaseName("IX_DIDComm_Messages_MessageId");
 
             entity.Property(e => e.From)
                 .IsRequired()
@@ -45,7 +45,7 @@ public class DIDCommDbContext : DbContext
                 .HasMaxLength(500);
 
             entity.HasIndex(e => new { e.From, e.To })
-                .HasDatabaseName("IX_Messages_FromTo");
+                .HasDatabaseName("IX_DIDComm_Messages_FromTo");
 
             entity.Property(e => e.Type)
                 .IsRequired()
@@ -55,17 +55,17 @@ public class DIDCommDbContext : DbContext
                 .HasMaxLength(255);
 
             entity.HasIndex(e => e.ThreadId)
-                .HasDatabaseName("IX_Messages_ThreadId");
+                .HasDatabaseName("IX_DIDComm_Messages_ThreadId");
 
             entity.Property(e => e.Status)
                 .IsRequired()
                 .HasMaxLength(50);
 
             entity.HasIndex(e => e.Status)
-                .HasDatabaseName("IX_Messages_Status");
+                .HasDatabaseName("IX_DIDComm_Messages_Status");
 
             entity.HasIndex(e => new { e.ReceivedAt, e.SentAt })
-                .HasDatabaseName("IX_Messages_CreatedAt")
+                .HasDatabaseName("IX_DIDComm_Messages_CreatedAt")
                 .IsDescending();
 
             // Standard fields
@@ -79,7 +79,7 @@ public class DIDCommDbContext : DbContext
         // Configure Connection entity
         modelBuilder.Entity<Connection>(entity =>
         {
-            entity.ToTable("Connections", "dbo");
+            entity.ToTable("DIDComm_Connections", "dbo");
             entity.HasKey(e => e.Id);
 
             entity.Property(e => e.MyDid)
@@ -92,7 +92,7 @@ public class DIDCommDbContext : DbContext
 
             entity.HasIndex(e => new { e.MyDid, e.TheirDid })
                 .IsUnique()
-                .HasDatabaseName("IX_Connections_DIDs");
+                .HasDatabaseName("IX_DIDComm_Connections_DIDs");
 
             entity.Property(e => e.TheirLabel).HasMaxLength(255);
             entity.Property(e => e.MyLabel).HasMaxLength(255);
@@ -114,7 +114,7 @@ public class DIDCommDbContext : DbContext
         // Configure DIDCommKey entity
         modelBuilder.Entity<DIDCommKey>(entity =>
         {
-            entity.ToTable("DIDCommKeys", "dbo");
+            entity.ToTable("DIDComm_Keys", "dbo");
             entity.HasKey(e => e.Id);
 
             entity.Property(e => e.Did)
@@ -122,7 +122,7 @@ public class DIDCommDbContext : DbContext
                 .HasMaxLength(500);
 
             entity.HasIndex(e => e.Did)
-                .HasDatabaseName("IX_Keys_Did");
+                .HasDatabaseName("IX_DIDComm_Keys_Did");
 
             entity.Property(e => e.KeyId)
                 .IsRequired()
@@ -135,7 +135,7 @@ public class DIDCommDbContext : DbContext
             entity.Property(e => e.Purpose).HasMaxLength(50);
 
             entity.HasIndex(e => new { e.Did, e.IsActive })
-                .HasDatabaseName("IX_Keys_Active");
+                .HasDatabaseName("IX_DIDComm_Keys_Active");
 
             // Standard fields
             entity.Property(e => e.Deleted).HasDefaultValue(false);
@@ -148,7 +148,7 @@ public class DIDCommDbContext : DbContext
         // Configure MessageThread entity
         modelBuilder.Entity<MessageThread>(entity =>
         {
-            entity.ToTable("MessageThreads", "dbo");
+            entity.ToTable("DIDComm_MessageThreads", "dbo");
             entity.HasKey(e => e.Id);
 
             entity.Property(e => e.ThreadId)
@@ -157,12 +157,12 @@ public class DIDCommDbContext : DbContext
 
             entity.HasIndex(e => e.ThreadId)
                 .IsUnique()
-                .HasDatabaseName("IX_Threads_ThreadId");
+                .HasDatabaseName("IX_DIDComm_Threads_ThreadId");
 
             entity.Property(e => e.ParentThreadId).HasMaxLength(255);
 
             entity.HasIndex(e => e.ParentThreadId)
-                .HasDatabaseName("IX_Threads_Parent");
+                .HasDatabaseName("IX_DIDComm_Threads_Parent");
 
             entity.Property(e => e.Subject).HasMaxLength(500);
 

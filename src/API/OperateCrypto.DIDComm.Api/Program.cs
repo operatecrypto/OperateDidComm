@@ -16,10 +16,10 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container
 builder.Services.AddControllers();
 
-// Configure Database (optional - comment out if SQL Server not available)
-// var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-// builder.Services.AddDbContext<DIDCommDbContext>(options =>
-//     options.UseSqlServer(connectionString));
+// Configure Database
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+builder.Services.AddDbContext<DIDCommDbContext>(options =>
+    options.UseSqlServer(connectionString));
 
 // Configure DIDComm Services
 builder.Services.AddScoped<IDIDCommService, DIDCommService>();
@@ -30,11 +30,11 @@ builder.Services.AddScoped<ICryptoService, CryptoService>();
 builder.Services.AddScoped<IMessageHandler, BasicMessageHandler>();
 builder.Services.AddScoped<IMessageHandler, TrustPingHandler>();
 
-// Configure Repositories (using in-memory for testing without database)
-builder.Services.AddSingleton<IMessageRepository, InMemoryMessageRepository>();
-// builder.Services.AddScoped<IConnectionRepository, ConnectionRepository>();
-// builder.Services.AddScoped<IDIDCommKeyRepository, DIDCommKeyRepository>();
-// builder.Services.AddScoped<IMessageThreadRepository, MessageThreadRepository>();
+// Configure Repositories
+builder.Services.AddScoped<IMessageRepository, MessageRepository>();
+builder.Services.AddScoped<IConnectionRepository, ConnectionRepository>();
+builder.Services.AddScoped<IDIDCommKeyRepository, DIDCommKeyRepository>();
+builder.Services.AddScoped<IMessageThreadRepository, MessageThreadRepository>();
 
 // Configure HttpClient for DID resolution
 builder.Services.AddHttpClient<IDIDResolver, AccumulateResolver>();
